@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Briefcase, GraduationCap, Code2, FolderOpen, Award, User, Settings2, Plus, X, ChevronDown } from 'lucide-react'
+import { useRef, useState } from 'react'
+import { Briefcase, GraduationCap, Code2, FolderOpen, Award, User, Settings2, Plus, X, ChevronDown, Upload, Image as ImageIcon } from 'lucide-react'
 import { AnimatePresence } from 'framer-motion'
 import { useResumeStore } from '@/store/resumeStore'
 import SectionGroup from './SectionGroup'
@@ -67,11 +67,25 @@ function ExperienceInlineForm({ itemId }: { itemId: string }) {
 }
 
 function EducationInlineForm({ itemId }: { itemId: string }) {
-  const { data, updateEducation } = useResumeStore()
+  const { data, updateEducation, updateMeta } = useResumeStore()
+  const fileRef = useRef<HTMLInputElement>(null)
   const index = data.education.findIndex((e) => e.id === itemId)
   if (index === -1) return null
   const edu = data.education[index]
   const upd = (patch: Parameters<typeof updateEducation>[1]) => updateEducation(index, patch)
+  const canUploadLogo = edu.school.trim().length > 0
+  const isFeaturedLogo = data.meta.featuredEducationId === edu.id
+
+  const handleLogoFile = (file: File) => {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const result = e.target?.result
+      if (typeof result === 'string') {
+        upd({ schoolLogoUrl: result })
+      }
+    }
+    reader.readAsDataURL(file)
+  }
 
   return (
     <div className="space-y-2">
@@ -88,6 +102,66 @@ function EducationInlineForm({ itemId }: { itemId: string }) {
         <DarkField label="开始时间" value={edu.startDate} onChange={(v) => upd({ startDate: v })} type="month" />
         <DarkField label="结束时间" value={edu.isCurrent ? '' : (edu.endDate || '')} onChange={(v) => upd({ endDate: v })} type="month" disabled={edu.isCurrent} />
       </div>
+
+      <div>
+        <label className={LABEL}>学校校徽</label>
+        <div className="flex items-start gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              if (!canUploadLogo) {
+                alert('请先填写学校名称，再上传校徽')
+                return
+              }
+              fileRef.current?.click()
+            }}
+            className={`flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg border transition-colors ${
+              canUploadLogo
+                ? 'border-[#3a3d4a] text-gray-300 hover:bg-[#2d3140]'
+                : 'border-[#2a2d38] text-gray-500 cursor-not-allowed'
+            }`}
+          >
+            <Upload size={12} />
+            上传校徽
+          </button>
+
+          <button
+            type="button"
+            onClick={() => updateMeta({ featuredEducationId: isFeaturedLogo ? '' : edu.id })}
+            className={`text-xs px-2.5 py-1.5 rounded-lg border transition-colors ${
+              isFeaturedLogo
+                ? 'border-blue-500/60 text-blue-300 bg-blue-500/10'
+                : 'border-[#3a3d4a] text-gray-400 hover:text-gray-200'
+            }`}
+          >
+            {isFeaturedLogo ? '已设为顶部校徽' : '设为顶部校徽'}
+          </button>
+        </div>
+
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => {
+            const f = e.target.files?.[0]
+            if (f) handleLogoFile(f)
+            e.target.value = ''
+          }}
+        />
+
+        {edu.schoolLogoUrl ? (
+          <div className="mt-2 w-16 h-16 bg-[#1a1d24] border border-[#3a3d4a] rounded-md overflow-hidden p-1">
+            <img src={edu.schoolLogoUrl} alt="学校校徽" className="w-full h-full object-contain" />
+          </div>
+        ) : (
+          <div className="mt-2 inline-flex items-center gap-1.5 text-xs text-gray-500">
+            <ImageIcon size={12} />
+            未上传校徽
+          </div>
+        )}
+      </div>
+
       <label className="flex items-center gap-2 text-xs text-gray-400 cursor-pointer">
         <input
           type="checkbox"

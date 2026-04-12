@@ -21,6 +21,8 @@ export default function ClassicTemplate({ data }: Props) {
   const { personal, experience, education, skills, projects, certifications, meta } = data
   const color = meta.colorScheme || '#2563eb'
   const hasJobIntent = Boolean(personal.jobStatus || personal.desiredPosition || personal.targetCity || personal.salaryMin || personal.salaryMax)
+  const featuredEducation = education.find((e) => e.id === meta.featuredEducationId)
+  const featuredLogo = featuredEducation?.schoolLogoUrl
 
   const fontSizeClass = {
     sm: 'text-[11px]',
@@ -38,8 +40,18 @@ export default function ClassicTemplate({ data }: Props) {
         className="relative px-10 h-44 bg-white border-t-[16px] border-solid overflow-hidden"
         style={{ borderTopColor: color }}
       >
-        <div className="h-full flex items-center justify-center">
-          <div className="text-center text-gray-900 max-w-[520px] px-6">
+        <div className="h-full grid grid-cols-[220px_1fr_220px] items-center gap-4">
+          <div className="flex items-center justify-start">
+            <div className="w-44 h-16 rounded-sm border border-gray-300 bg-white/70 text-gray-500 text-sm overflow-hidden p-1 flex items-center justify-center">
+              {featuredLogo ? (
+                <img src={featuredLogo} alt={featuredEducation?.school || '学校校徽'} className="w-full h-full object-contain" />
+              ) : (
+                <span>学校 LOGO / 标识</span>
+              )}
+            </div>
+          </div>
+
+          <div className="text-center text-gray-900 max-w-[520px] px-6 mx-auto">
             <h1 className="text-2xl font-bold tracking-wide">
               {personal.name || '你的姓名'}
             </h1>
@@ -55,13 +67,15 @@ export default function ClassicTemplate({ data }: Props) {
               {personal.salaryMax && <span>{personal.salaryMax}</span>}
             </div>
           </div>
-        </div>
 
-        {personal.avatarUrl && (
-          <div className="absolute right-8 top-1/2 -translate-y-1/2 w-24 h-32 rounded-sm overflow-hidden bg-white ring-1 ring-gray-300 p-1">
-            <img src={personal.avatarUrl} alt="头像" className="w-full h-full object-contain" />
+          <div className="flex items-center justify-end">
+            {personal.avatarUrl && (
+              <div className="w-24 h-32 rounded-sm overflow-hidden bg-white ring-1 ring-gray-300 p-1">
+                <img src={personal.avatarUrl} alt="头像" className="w-full h-full object-contain" />
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </header>
 
       <div className="px-8 py-5 space-y-4">

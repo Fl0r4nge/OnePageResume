@@ -9,6 +9,7 @@ export const ResumMetaSchema = z.object({
   colorScheme: z.string().regex(/^#[0-9a-fA-F]{6}$/),
   fontSize: z.enum(['sm', 'md', 'lg']),
   sectionOrder: z.array(z.string()),
+  featuredEducationId: z.string().optional(),
 })
 
 export const PersonalInfoSchema = z.object({
@@ -60,6 +61,7 @@ export const ExperienceEntrySchema = z.object({
 export const EducationEntrySchema = z.object({
   id: z.string(),
   school: z.string().max(200),
+  schoolLogoUrl: z.string().optional(),
   degree: z.string().max(100),
   major: z.string().max(150),
   location: z.string().max(100).optional(),

@@ -11,6 +11,7 @@ export interface ResumeMeta {
   colorScheme: string
   fontSize: FontSize
   sectionOrder: string[]
+  featuredEducationId?: string
 }
 
 export interface PersonalInfo {
@@ -62,6 +63,7 @@ export interface ExperienceEntry {
 export interface EducationEntry {
   id: string
   school: string
+  schoolLogoUrl?: string
   degree: string
   major: string
   location?: string
@@ -127,6 +129,7 @@ export const DEFAULT_RESUME_DATA: ResumeData = {
     colorScheme: '#2563eb',
     fontSize: 'md',
     sectionOrder: ['personal', 'experience', 'education', 'skills', 'projects', 'certifications'],
+    featuredEducationId: '',
   },
   personal: {
     name: '',

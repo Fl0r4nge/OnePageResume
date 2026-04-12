@@ -133,6 +133,7 @@ export const useResumeStore = create<ResumeStore>()(
         s.data.education.push({
           id: genId(),
           school: '',
+          schoolLogoUrl: '',
           degree: '',
           major: '',
           startDate: '',
@@ -149,7 +150,11 @@ export const useResumeStore = create<ResumeStore>()(
 
     removeEducation: (index) =>
       set((s) => {
+        const removedId = s.data.education[index]?.id
         s.data.education.splice(index, 1)
+        if (removedId && s.data.meta.featuredEducationId === removedId) {
+          s.data.meta.featuredEducationId = ''
+        }
         s.isDirty = true
       }),
 

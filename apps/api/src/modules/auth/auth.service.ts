@@ -21,7 +21,7 @@ export async function registerUser(email: string, password: string, name?: strin
       userId: user.id,
       title: '我的简历',
       content: {
-        meta: { templateId: 'classic', colorScheme: '#2563eb', fontSize: 'md', sectionOrder: ['personal', 'experience', 'education', 'skills', 'projects', 'certifications'] },
+        meta: { templateId: 'classic', colorScheme: '#2563eb', fontSize: 'md', sectionOrder: ['personal', 'experience', 'education', 'skills', 'projects', 'certifications'], featuredEducationId: '' },
         personal: { name: '', title: '', email: '', phone: '', location: '', avatarUrl: '', summary: '' },
         experience: [],
         education: [],
