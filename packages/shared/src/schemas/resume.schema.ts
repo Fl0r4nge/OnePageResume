@@ -17,9 +17,9 @@ export const PersonalInfoSchema = z.object({
   email: z.string().email().or(z.literal('')),
   phone: z.string().max(30),
   location: z.string().max(100),
-  linkedin: z.string().url().or(z.literal('')).optional(),
-  github: z.string().url().or(z.literal('')).optional(),
-  website: z.string().url().or(z.literal('')).optional(),
+  linkedin: z.string().max(500).optional(),
+  github: z.string().max(500).optional(),
+  website: z.string().max(500).optional(),
   avatarUrl: z.string().optional(), // allows https:// URLs and data: URLs
   summary: z.string().max(2000),
 
