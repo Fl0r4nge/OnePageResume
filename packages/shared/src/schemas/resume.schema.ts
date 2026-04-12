@@ -20,8 +20,30 @@ export const PersonalInfoSchema = z.object({
   linkedin: z.string().url().or(z.literal('')).optional(),
   github: z.string().url().or(z.literal('')).optional(),
   website: z.string().url().or(z.literal('')).optional(),
-  avatarUrl: z.string().url().or(z.literal('')).optional(),
+  avatarUrl: z.string().optional(), // allows https:// URLs and data: URLs
   summary: z.string().max(2000),
+
+  // 求职意向
+  jobStatus: z.string().max(50).optional(),
+  targetCity: z.string().max(100).optional(),
+  desiredPosition: z.string().max(150).optional(),
+  salaryMin: z.string().max(20).optional(),
+  salaryMax: z.string().max(20).optional(),
+
+  // 社交信息
+  wechat: z.string().max(100).optional(),
+
+  // 其他信息
+  gender: z.string().max(20).optional(),
+  height: z.string().max(20).optional(),
+  weight: z.string().max(20).optional(),
+  ethnicity: z.string().max(50).optional(),
+  nativePlace: z.string().max(100).optional(),
+  politicalStatus: z.string().max(50).optional(),
+  maritalStatus: z.string().max(20).optional(),
+  birthday: z.string().max(30).optional(),
+  zodiac: z.string().max(20).optional(),
+  mbti: z.string().max(10).optional(),
 })
 
 export const ExperienceEntrySchema = z.object({

@@ -24,6 +24,28 @@ export interface PersonalInfo {
   website?: string
   avatarUrl?: string
   summary: string
+
+  // 求职意向
+  jobStatus?: string
+  targetCity?: string
+  desiredPosition?: string
+  salaryMin?: string
+  salaryMax?: string
+
+  // 社交信息
+  wechat?: string
+
+  // 其他信息
+  gender?: string
+  height?: string
+  weight?: string
+  ethnicity?: string
+  nativePlace?: string
+  politicalStatus?: string
+  maritalStatus?: string
+  birthday?: string
+  zodiac?: string
+  mbti?: string
 }
 
 export interface ExperienceEntry {
