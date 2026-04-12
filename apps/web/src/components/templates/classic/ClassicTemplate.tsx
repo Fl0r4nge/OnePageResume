@@ -35,7 +35,7 @@ export default function ClassicTemplate({ data }: Props) {
     >
       {/* Header */}
       <header
-        className="relative px-10 h-44 bg-white border-t-[12px] border-solid overflow-hidden"
+        className="relative px-10 h-44 bg-white border-t-[16px] border-solid overflow-hidden"
         style={{ borderTopColor: color }}
       >
         <div className="h-full flex items-center justify-center">
