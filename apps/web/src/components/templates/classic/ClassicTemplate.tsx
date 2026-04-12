@@ -42,7 +42,7 @@ export default function ClassicTemplate({ data }: Props) {
       >
         <div className="h-full grid grid-cols-[220px_1fr_220px] items-center gap-4">
           <div className="flex items-center justify-start">
-            <div className="w-44 h-16 rounded-sm border border-gray-300 bg-white/70 text-gray-500 text-sm overflow-hidden p-1 flex items-center justify-center">
+            <div className="w-44 h-16 rounded-sm bg-white/70 text-gray-500 text-sm overflow-hidden p-1 flex items-center justify-center">
               {featuredLogo ? (
                 <img src={featuredLogo} alt={featuredEducation?.school || '学校校徽'} className="w-full h-full object-contain" />
               ) : (
@@ -70,7 +70,7 @@ export default function ClassicTemplate({ data }: Props) {
 
           <div className="flex items-center justify-end">
             {personal.avatarUrl && (
-              <div className="w-24 h-32 rounded-sm overflow-hidden bg-white ring-1 ring-gray-300 p-1">
+              <div className="w-24 h-32 rounded-sm overflow-hidden bg-white p-1">
                 <img src={personal.avatarUrl} alt="头像" className="w-full h-full object-contain" />
               </div>
             )}

@@ -1,2 +1,4 @@
-- [x] 完成基本信息铺开展示到下拉框选择后再全部展示功能 
-- [x] 修复 http://localhost:5173/dashboard 界面以及简历编辑界面 http://localhost:5173/editor/cmnueybpw000bz1eziiyvfmb8 无法修改简历名称的BUG
+- [x] 完善功能： 完成基本信息铺开展示到下拉框选择后再全部展示功能 
+- [x] 修复功能： http://localhost:5173/dashboard 界面以及简历编辑界面 http://localhost:5173/editor/cmnueybpw000bz1eziiyvfmb8 无法修改简历名称的BUG
+- [x] 完善功能： 在教育经历中输入完学校名称后，可以上传学校的校徽并在简历预览中展示，如图所示
+- [x] 完善功能： 把校徽和个人头像外边的线框去掉
