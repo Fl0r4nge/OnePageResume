@@ -302,7 +302,10 @@ export default function PersonalInfoForm() {
 
       {/* Basic fields */}
       <div className="space-y-3">
-        <Field label="姓名" value={p.name} onChange={(v) => upd({ name: v })} placeholder="张三" />
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="姓名" value={p.name} onChange={(v) => upd({ name: v })} placeholder="张三" />
+          <Field label="职位/标题" value={p.title} onChange={(v) => upd({ title: v })} placeholder="前端工程师" />
+        </div>
         <div className="grid grid-cols-2 gap-3">
           <Field label="电话" value={p.phone} onChange={(v) => upd({ phone: v })} placeholder="138-0000-0000" type="tel" />
           <Field label="邮箱" value={p.email} onChange={(v) => upd({ email: v })} placeholder="zhang@example.com" type="email" />
@@ -310,6 +313,16 @@ export default function PersonalInfoForm() {
         <div className="grid grid-cols-2 gap-3">
           <Field label="现居城市" value={p.location} onChange={(v) => upd({ location: v })} placeholder="如：北京" />
           <Field label="个人网站" value={p.website || ''} onChange={(v) => upd({ website: v })} placeholder="https://..." />
+        </div>
+        <div>
+          <label className={LABEL}>个人简介</label>
+          <textarea
+            value={p.summary || ''}
+            onChange={(e) => upd({ summary: e.target.value })}
+            placeholder="简短介绍自己的背景、核心技能和职业目标..."
+            rows={3}
+            className={`${INPUT} resize-none`}
+          />
         </div>
       </div>
 
