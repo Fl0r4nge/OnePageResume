@@ -23,14 +23,9 @@ const SECTION_LABELS: Record<string, string> = {
   skills:         '专业技能',
   projects:       '项目经历',
   certifications: '证书奖项',
-  clubs:          '社团和组织经历',
-  honors:         '荣誉奖项',
-  portfolio:      '作品集',
-  other:          '其他',
-  custom:         '自定义模块',
 }
 
-const ALL_ADDABLE = ['experience', 'education', 'skills', 'projects', 'certifications', 'clubs', 'honors', 'other', 'portfolio', 'custom']
+const ALL_ADDABLE = ['experience', 'education', 'skills', 'projects', 'certifications']
 
 function SortableRow({ id, onDelete }: { id: string; onDelete: () => void }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })

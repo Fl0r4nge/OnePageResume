@@ -23,6 +23,8 @@ export default function ClassicTemplate({ data }: Props) {
   const hasJobIntent = Boolean(personal.jobStatus || personal.desiredPosition || personal.targetCity || personal.salaryMin || personal.salaryMax)
   const featuredEducation = education.find((e) => e.id === meta.featuredEducationId)
   const featuredLogo = featuredEducation?.schoolLogoUrl
+  const orderedSectionIds = (meta.sectionOrder?.length ? meta.sectionOrder : ['personal', 'experience', 'education', 'skills', 'projects', 'certifications'])
+    .filter((id) => id !== 'personal')
 
   const fontSizeClass = {
     sm: 'text-[11px]',
@@ -105,110 +107,119 @@ export default function ClassicTemplate({ data }: Props) {
           </section>
         )}
 
-        {/* Experience */}
-        {experience.length > 0 && (
-          <section>
-            <SectionTitle title="工作经历" color={color} />
-            <div className="space-y-4">
-              {experience.map((exp) => (
-                <div key={exp.id}>
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className="font-semibold text-gray-900">{exp.position}</h3>
-                      <p className="text-gray-600">{exp.company}{exp.location ? ` · ${exp.location}` : ''}</p>
+        {orderedSectionIds.map((sectionId) => {
+          if (sectionId === 'experience' && experience.length > 0) {
+            return (
+              <section key={sectionId}>
+                <SectionTitle title="工作经历" color={color} />
+                <div className="space-y-4">
+                  {experience.map((exp) => (
+                    <div key={exp.id}>
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h3 className="font-semibold text-gray-900">{exp.position}</h3>
+                          <p className="text-gray-600">{exp.company}{exp.location ? ` · ${exp.location}` : ''}</p>
+                        </div>
+                        <div className="text-gray-400 text-xs text-right whitespace-nowrap ml-4">
+                          {formatDate(exp.startDate)} — {exp.isCurrent ? '至今' : formatDate(exp.endDate)}
+                        </div>
+                      </div>
+                      {exp.description && (
+                        <div
+                          className="text-gray-700 mt-1.5 prose prose-sm max-w-none [&>ul]:list-disc [&>ul]:pl-4 [&>ul]:space-y-0.5"
+                          dangerouslySetInnerHTML={{ __html: exp.description }}
+                        />
+                      )}
                     </div>
-                    <div className="text-gray-400 text-xs text-right whitespace-nowrap ml-4">
-                      {formatDate(exp.startDate)} — {exp.isCurrent ? '至今' : formatDate(exp.endDate)}
+                  ))}
+                </div>
+              </section>
+            )
+          }
+
+          if (sectionId === 'education' && education.length > 0) {
+            return (
+              <section key={sectionId}>
+                <SectionTitle title="教育经历" color={color} />
+                <div className="space-y-3">
+                  {education.map((edu) => (
+                    <div key={edu.id} className="flex items-start justify-between">
+                      <div>
+                        <h3 className="font-semibold text-gray-900">{edu.school}</h3>
+                        <p className="text-gray-600">{edu.degree} · {edu.major}{edu.gpa ? ` · GPA: ${edu.gpa}` : ''}</p>
+                      </div>
+                      <div className="text-gray-400 text-xs text-right whitespace-nowrap ml-4">
+                        {formatDate(edu.startDate)} — {edu.isCurrent ? '至今' : formatDate(edu.endDate)}
+                      </div>
                     </div>
-                  </div>
-                  {exp.description && (
-                    <div
-                      className="text-gray-700 mt-1.5 prose prose-sm max-w-none [&>ul]:list-disc [&>ul]:pl-4 [&>ul]:space-y-0.5"
-                      dangerouslySetInnerHTML={{ __html: exp.description }}
-                    />
-                  )}
+                  ))}
                 </div>
-              ))}
-            </div>
-          </section>
-        )}
+              </section>
+            )
+          }
 
-        {/* Education */}
-        {education.length > 0 && (
-          <section>
-            <SectionTitle title="教育经历" color={color} />
-            <div className="space-y-3">
-              {education.map((edu) => (
-                <div key={edu.id} className="flex items-start justify-between">
-                  <div>
-                    <h3 className="font-semibold text-gray-900">{edu.school}</h3>
-                    <p className="text-gray-600">{edu.degree} · {edu.major}{edu.gpa ? ` · GPA: ${edu.gpa}` : ''}</p>
-                  </div>
-                  <div className="text-gray-400 text-xs text-right whitespace-nowrap ml-4">
-                    {formatDate(edu.startDate)} — {edu.isCurrent ? '至今' : formatDate(edu.endDate)}
-                  </div>
+          if (sectionId === 'skills' && skills.length > 0) {
+            return (
+              <section key={sectionId}>
+                <SectionTitle title="专业技能" color={color} />
+                <div className="space-y-1.5">
+                  {skills.map((group) => (
+                    <div key={group.id} className="flex gap-2">
+                      {group.category && (
+                        <span className="font-semibold text-gray-700 whitespace-nowrap min-w-[80px]">
+                          {group.category}:
+                        </span>
+                      )}
+                      <span className="text-gray-600">{group.skills.join(' · ')}</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </section>
-        )}
+              </section>
+            )
+          }
 
-        {/* Skills */}
-        {skills.length > 0 && (
-          <section>
-            <SectionTitle title="专业技能" color={color} />
-            <div className="space-y-1.5">
-              {skills.map((group) => (
-                <div key={group.id} className="flex gap-2">
-                  {group.category && (
-                    <span className="font-semibold text-gray-700 whitespace-nowrap min-w-[80px]">
-                      {group.category}:
-                    </span>
-                  )}
-                  <span className="text-gray-600">{group.skills.join(' · ')}</span>
+          if (sectionId === 'projects' && projects.length > 0) {
+            return (
+              <section key={sectionId}>
+                <SectionTitle title="项目经历" color={color} />
+                <div className="space-y-3">
+                  {projects.map((proj) => (
+                    <div key={proj.id}>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-semibold text-gray-900">{proj.name}</h3>
+                        {proj.role && <span className="text-gray-500">· {proj.role}</span>}
+                      </div>
+                      {proj.description && (
+                        <div
+                          className="text-gray-700 mt-1 prose prose-sm max-w-none [&>ul]:list-disc [&>ul]:pl-4"
+                          dangerouslySetInnerHTML={{ __html: proj.description }}
+                        />
+                      )}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </section>
-        )}
+              </section>
+            )
+          }
 
-        {/* Projects */}
-        {projects.length > 0 && (
-          <section>
-            <SectionTitle title="项目经历" color={color} />
-            <div className="space-y-3">
-              {projects.map((proj) => (
-                <div key={proj.id}>
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-semibold text-gray-900">{proj.name}</h3>
-                    {proj.role && <span className="text-gray-500">· {proj.role}</span>}
-                  </div>
-                  {proj.description && (
-                    <div
-                      className="text-gray-700 mt-1 prose prose-sm max-w-none [&>ul]:list-disc [&>ul]:pl-4"
-                      dangerouslySetInnerHTML={{ __html: proj.description }}
-                    />
-                  )}
+          if (sectionId === 'certifications' && certifications.length > 0) {
+            return (
+              <section key={sectionId}>
+                <SectionTitle title="证书与奖项" color={color} />
+                <div className="space-y-1">
+                  {certifications.map((cert) => (
+                    <div key={cert.id} className="flex justify-between">
+                      <span className="font-medium text-gray-900">{cert.name}</span>
+                      <span className="text-gray-500">{cert.issuer}{cert.date ? ` · ${formatDate(cert.date)}` : ''}</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </section>
-        )}
+              </section>
+            )
+          }
 
-        {/* Certifications */}
-        {certifications.length > 0 && (
-          <section>
-            <SectionTitle title="证书与奖项" color={color} />
-            <div className="space-y-1">
-              {certifications.map((cert) => (
-                <div key={cert.id} className="flex justify-between">
-                  <span className="font-medium text-gray-900">{cert.name}</span>
-                  <span className="text-gray-500">{cert.issuer}{cert.date ? ` · ${formatDate(cert.date)}` : ''}</span>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
+          return null
+        })}
       </div>
     </div>
   )
