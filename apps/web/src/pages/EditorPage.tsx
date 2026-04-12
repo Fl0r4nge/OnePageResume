@@ -1,12 +1,12 @@
-import { useEffect, useState, Suspense } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { FileText, ArrowLeft, Download, Zap, Layout, Check, Loader2, AlertTriangle, Pencil } from 'lucide-react'
+import { FileText, ArrowLeft, Download, Zap, Layout, Check, Loader2, Pencil } from 'lucide-react'
 import { useResumeStore } from '@/store/resumeStore'
 import { resumesApi, aiApi } from '@/lib/api'
 import { useAutoSave } from '@/hooks/useAutoSave'
-import { usePageOverflow } from '@/hooks/usePageOverflow'
 import SidebarPanel from '@/components/editor/SidebarPanel'
 import TemplatePicker from '@/components/toolbar/TemplatePicker'
+import PaginatedPreview from '@/components/preview/PaginatedPreview'
 import { TEMPLATE_REGISTRY } from '@/components/templates/registry'
 
 export default function EditorPage() {
@@ -20,8 +20,7 @@ export default function EditorPage() {
   const [titleDraft, setTitleDraft] = useState('我的简历')
   const [isEditingTitle, setIsEditingTitle] = useState(false)
   const [isRenamingTitle, setIsRenamingTitle] = useState(false)
-
-  const { ref: previewRef, isOverflowing, overflowAmount } = usePageOverflow()
+  const [pageCount, setPageCount] = useState(1)
 
   useAutoSave()
 
@@ -167,13 +166,7 @@ export default function EditorPage() {
           ) : null}
         </div>
 
-        {/* Overflow warning */}
-        {isOverflowing && (
-          <div className="flex items-center gap-1.5 bg-amber-50 text-amber-700 text-xs px-2.5 py-1 rounded-full ml-2">
-            <AlertTriangle size={13} />
-            超出 {Math.round(overflowAmount)}px
-          </div>
-        )}
+        <div className="text-xs text-gray-500 ml-2">共 {pageCount} 页</div>
 
         <div className="ml-auto flex items-center gap-2">
           {/* Template picker */}
@@ -206,7 +199,7 @@ export default function EditorPage() {
             onClick={handleAICompress}
             disabled={isCompressing}
             className={`flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg transition-colors ${
-              isOverflowing
+              pageCount > 1
                 ? 'bg-amber-500 text-white hover:bg-amber-600 animate-pulse'
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             } disabled:opacity-50`}
@@ -235,14 +228,11 @@ export default function EditorPage() {
         {/* Right: Preview */}
         <div className="flex-1 overflow-auto bg-gray-200 flex items-start justify-center p-8">
           <div id="resume-print-area">
-            <div
-              ref={previewRef}
-              className={`shadow-2xl transition-all ${isOverflowing ? 'ring-2 ring-amber-400' : ''}`}
-            >
-              <Suspense fallback={<div className="resume-page flex items-center justify-center text-gray-400">模板加载中...</div>}>
-                <TemplateComponent data={data} />
-              </Suspense>
-            </div>
+            <PaginatedPreview
+              TemplateComponent={TemplateComponent}
+              data={data}
+              onPageCountChange={setPageCount}
+            />
           </div>
         </div>
       </div>
