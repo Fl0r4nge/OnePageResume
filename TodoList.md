@@ -1,0 +1,2 @@
+- [x] 完成基本信息铺开展示到下拉框选择后再全部展示功能 
+- [x] 修复 http://localhost:5173/dashboard 界面以及简历编辑界面 http://localhost:5173/editor/cmnueybpw000bz1eziiyvfmb8 无法修改简历名称的BUG

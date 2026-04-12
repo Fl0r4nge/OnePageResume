@@ -1,6 +1,6 @@
 import { useEffect, useState, Suspense } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { FileText, ArrowLeft, Download, Zap, Layout, Check, Loader2, AlertTriangle } from 'lucide-react'
+import { FileText, ArrowLeft, Download, Zap, Layout, Check, Loader2, AlertTriangle, Pencil } from 'lucide-react'
 import { useResumeStore } from '@/store/resumeStore'
 import { resumesApi, aiApi } from '@/lib/api'
 import { useAutoSave } from '@/hooks/useAutoSave'
@@ -17,6 +17,9 @@ export default function EditorPage() {
   const [showTemplatePicker, setShowTemplatePicker] = useState(false)
   const [isCompressing, setIsCompressing] = useState(false)
   const [resumeTitle, setResumeTitle] = useState('我的简历')
+  const [titleDraft, setTitleDraft] = useState('我的简历')
+  const [isEditingTitle, setIsEditingTitle] = useState(false)
+  const [isRenamingTitle, setIsRenamingTitle] = useState(false)
 
   const { ref: previewRef, isOverflowing, overflowAmount } = usePageOverflow()
 
@@ -30,10 +33,43 @@ export default function EditorPage() {
       .then((res) => {
         setResumeData(res.data.content)
         setResumeTitle(res.data.title)
+        setTitleDraft(res.data.title)
       })
       .catch(() => navigate('/dashboard'))
       .finally(() => setLoading(false))
   }, [id, setResumeId, setResumeData, navigate])
+
+  const startRename = () => {
+    setTitleDraft(resumeTitle)
+    setIsEditingTitle(true)
+  }
+
+  const cancelRename = () => {
+    setTitleDraft(resumeTitle)
+    setIsEditingTitle(false)
+  }
+
+  const commitRename = async () => {
+    if (!id || isRenamingTitle) return
+
+    const nextTitle = titleDraft.trim()
+    if (!nextTitle || nextTitle === resumeTitle) {
+      cancelRename()
+      return
+    }
+
+    setIsRenamingTitle(true)
+    try {
+      await resumesApi.update(id, { title: nextTitle })
+      setResumeTitle(nextTitle)
+      setIsEditingTitle(false)
+    } catch (err: any) {
+      alert(err?.response?.data?.error || '重命名失败，请稍后重试')
+      setTitleDraft(resumeTitle)
+    } finally {
+      setIsRenamingTitle(false)
+    }
+  }
 
   // PDF export via browser print
   const handleExport = () => {
@@ -87,12 +123,43 @@ export default function EditorPage() {
         </div>
 
         <div className="h-4 w-px bg-gray-300" />
-        <span className="text-sm font-medium text-gray-700 truncate max-w-[200px]">{resumeTitle}</span>
+        {isEditingTitle ? (
+          <input
+            autoFocus
+            value={titleDraft}
+            onChange={(e) => setTitleDraft(e.target.value)}
+            onBlur={() => { void commitRename() }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                void commitRename()
+              }
+              if (e.key === 'Escape') {
+                e.preventDefault()
+                cancelRename()
+              }
+            }}
+            disabled={isRenamingTitle}
+            className="text-sm font-medium text-gray-700 w-[220px] border border-blue-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        ) : (
+          <button
+            type="button"
+            onClick={startRename}
+            className="flex items-center gap-1 text-sm font-medium text-gray-700 truncate max-w-[220px] hover:text-gray-900 cursor-text group"
+            title="点击重命名"
+          >
+            <span className="truncate">{resumeTitle}</span>
+            <Pencil size={12} className="text-gray-400 group-hover:text-gray-600 flex-shrink-0" />
+          </button>
+        )}
 
         {/* Save status */}
         <div className="text-xs text-gray-400 ml-1">
           {isSaving ? (
             <span className="flex items-center gap-1"><Loader2 size={12} className="animate-spin" /> 保存中...</span>
+          ) : isRenamingTitle ? (
+            <span className="flex items-center gap-1"><Loader2 size={12} className="animate-spin" /> 重命名中...</span>
           ) : isDirty ? (
             <span>未保存</span>
           ) : lastSavedAt ? (

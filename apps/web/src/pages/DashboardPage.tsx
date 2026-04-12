@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { FileText, Plus, Copy, Trash2, LogOut, Edit3 } from 'lucide-react'
+import { FileText, Plus, Copy, Trash2, LogOut, Edit3, Pencil } from 'lucide-react'
 import { resumesApi, authApi } from '@/lib/api'
 import { useAuthStore } from '@/store/authStore'
 
@@ -17,6 +17,9 @@ export default function DashboardPage() {
   const { user, logout } = useAuthStore()
   const [resumes, setResumes] = useState<ResumeItem[]>([])
   const [loading, setLoading] = useState(true)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [titleDraft, setTitleDraft] = useState('')
+  const [renamingId, setRenamingId] = useState<string | null>(null)
 
   useEffect(() => {
     resumesApi.list()
@@ -59,6 +62,44 @@ export default function DashboardPage() {
     } catch {}
     logout()
     navigate('/login')
+  }
+
+  const startRename = (resume: ResumeItem) => {
+    setEditingId(resume.id)
+    setTitleDraft(resume.title)
+  }
+
+  const cancelRename = () => {
+    setEditingId(null)
+    setTitleDraft('')
+  }
+
+  const commitRename = async (resumeId: string) => {
+    if (renamingId === resumeId) return
+
+    const current = resumes.find((r) => r.id === resumeId)
+    if (!current) {
+      cancelRename()
+      return
+    }
+
+    const nextTitle = titleDraft.trim()
+    if (!nextTitle || nextTitle === current.title) {
+      cancelRename()
+      return
+    }
+
+    setRenamingId(resumeId)
+    try {
+      await resumesApi.update(resumeId, { title: nextTitle })
+      setResumes((prev) => prev.map((r) => (r.id === resumeId ? { ...r, title: nextTitle } : r)))
+      setEditingId(null)
+      setTitleDraft('')
+    } catch (err: any) {
+      alert(err?.response?.data?.error || '重命名失败，请稍后重试')
+    } finally {
+      setRenamingId(null)
+    }
   }
 
   return (
@@ -118,7 +159,38 @@ export default function DashboardPage() {
               >
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <h3 className="font-semibold text-gray-900 truncate max-w-[180px]">{resume.title}</h3>
+                    {editingId === resume.id ? (
+                      <input
+                        autoFocus
+                        value={titleDraft}
+                        onChange={(e) => setTitleDraft(e.target.value)}
+                        onBlur={() => { void commitRename(resume.id) }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault()
+                            void commitRename(resume.id)
+                          }
+                          if (e.key === 'Escape') {
+                            e.preventDefault()
+                            cancelRename()
+                          }
+                        }}
+                        disabled={renamingId === resume.id}
+                        className="font-semibold text-gray-900 max-w-[180px] w-full border border-blue-300 rounded px-1 py-0.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => startRename(resume)}
+                        className="flex items-center gap-1 max-w-[180px] group"
+                        title="点击重命名"
+                      >
+                        <h3 className="font-semibold text-gray-900 truncate cursor-text">
+                          {resume.title}
+                        </h3>
+                        <Pencil size={12} className="text-gray-400 group-hover:text-gray-600 flex-shrink-0" />
+                      </button>
+                    )}
                     <p className="text-xs text-gray-400 mt-1">
                       更新于 {new Date(resume.updatedAt).toLocaleDateString('zh-CN')}
                     </p>

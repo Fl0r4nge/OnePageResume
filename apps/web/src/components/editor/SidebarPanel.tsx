@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Briefcase, GraduationCap, Code2, FolderOpen, Award, User, Settings2, Plus, X } from 'lucide-react'
+import { Briefcase, GraduationCap, Code2, FolderOpen, Award, User, Settings2, Plus, X, ChevronDown } from 'lucide-react'
 import { AnimatePresence } from 'framer-motion'
 import { useResumeStore } from '@/store/resumeStore'
 import SectionGroup from './SectionGroup'
@@ -218,6 +218,7 @@ export default function SidebarPanel() {
   } = useResumeStore()
 
   const [expandedItemId, setExpandedItemId] = useState<string | null>(null)
+  const [isPersonalExpanded, setIsPersonalExpanded] = useState(false)
   const [showModuleManager, setShowModuleManager] = useState(false)
 
   const handleExpand = (id: string | null) => setExpandedItemId(id)
@@ -305,17 +306,27 @@ export default function SidebarPanel() {
 
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto px-3 py-3 space-y-3">
-        {/* Personal info — always expanded */}
+        {/* Personal info */}
         <div className="bg-[#252830] rounded-xl overflow-hidden">
-          <div className="flex items-center gap-2 px-3 py-2.5">
+          <button
+            type="button"
+            onClick={() => setIsPersonalExpanded((prev) => !prev)}
+            className="w-full flex items-center gap-2 px-3 py-2.5 text-left hover:bg-[#2d3140] transition-colors"
+          >
             <User size={15} className="text-gray-400 flex-shrink-0" />
             <span className="text-sm font-semibold text-gray-200 flex-1">基本信息</span>
-          </div>
-          <div className="px-3 pb-3 border-t border-[#2d3140]">
-            <div className="pt-3">
-              <PersonalInfoForm />
+            <ChevronDown
+              size={14}
+              className={`text-gray-500 transition-transform ${isPersonalExpanded ? 'rotate-180' : ''}`}
+            />
+          </button>
+          {isPersonalExpanded && (
+            <div className="px-3 pb-3 border-t border-[#2d3140]">
+              <div className="pt-3">
+                <PersonalInfoForm />
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Dynamic sections */}
