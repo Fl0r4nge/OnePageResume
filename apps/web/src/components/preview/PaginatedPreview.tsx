@@ -11,6 +11,7 @@ interface PaginatedPreviewProps {
 
 const MIN_CHUNK_PX = 120
 const PAGE_BOTTOM_GUARD_PX = 24
+const PAGE_TOP_PADDING_PX = 24
 
 function getLineStartBreakpoints(root: HTMLElement, totalHeight: number): number[] {
   const rootRect = root.getBoundingClientRect()
@@ -140,27 +141,43 @@ export default function PaginatedPreview({ TemplateComponent, data, onPageCountC
       </div>
 
       {pageStarts.map((startOffset, pageIndex) => {
+        const topPad = pageIndex > 0 ? PAGE_TOP_PADDING_PX : 0
         const nextStart = pageStarts[pageIndex + 1] ?? totalHeight
         const logicalPageHeight = nextStart - startOffset
-        const maskHeight = A4_HEIGHT_PX - logicalPageHeight
+        const maskHeight = A4_HEIGHT_PX - logicalPageHeight - topPad
 
         return (
           <div key={pageIndex} className="resume-sheet" style={{ width: `${A4_WIDTH_PX}px`, height: `${A4_HEIGHT_PX}px` }}>
             <div
               className="resume-sheet-content"
-              style={{ width: `${A4_WIDTH_PX}px`, transform: `translateY(-${startOffset}px)` }}
+              style={{ width: `${A4_WIDTH_PX}px`, top: topPad, transform: `translateY(-${startOffset}px)` }}
             >
               <Suspense fallback={<div className="resume-page flex items-center justify-center text-gray-400">模板加载中...</div>}>
                 <TemplateComponent data={data} />
               </Suspense>
             </div>
+            {topPad > 0 && (
+              <div
+                aria-hidden="true"
+                style={{
+                  position: 'absolute',
+                  left: 0,
+                  top: 0,
+                  width: `${A4_WIDTH_PX}px`,
+                  height: topPad,
+                  backgroundColor: 'white',
+                  pointerEvents: 'none',
+                  zIndex: 1,
+                }}
+              />
+            )}
             {maskHeight > 0 && (
               <div
                 aria-hidden="true"
                 style={{
                   position: 'absolute',
                   left: 0,
-                  top: logicalPageHeight,
+                  top: logicalPageHeight + topPad,
                   width: `${A4_WIDTH_PX}px`,
                   height: maskHeight,
                   backgroundColor: 'white',
