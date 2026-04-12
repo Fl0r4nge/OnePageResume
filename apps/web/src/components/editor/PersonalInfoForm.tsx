@@ -290,8 +290,9 @@ export default function PersonalInfoForm() {
       setSaving(true)
       await resumesApi.update(resumeId, { content: useResumeStore.getState().data })
       markSaved()
-    } catch {
+    } catch (err: any) {
       setSaving(false)
+      alert(err?.response?.data?.error || '保存失败，请稍后重试')
     }
   }
 

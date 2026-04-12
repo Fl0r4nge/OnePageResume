@@ -18,6 +18,7 @@ function formatDate(dateStr?: string): string {
 export default function ModernTemplate({ data }: Props) {
   const { personal, experience, education, skills, projects, certifications, meta } = data
   const color = meta.colorScheme || '#7c3aed'
+  const hasJobIntent = Boolean(personal.jobStatus || personal.desiredPosition || personal.targetCity || personal.salaryMin || personal.salaryMax)
 
   const fontSizeClass = {
     sm: 'text-[10.5px]',
@@ -41,6 +42,7 @@ export default function ModernTemplate({ data }: Props) {
           {personal.email && <p className="text-xs opacity-90 break-all">{personal.email}</p>}
           {personal.phone && <p className="text-xs opacity-90">{personal.phone}</p>}
           {personal.location && <p className="text-xs opacity-90">{personal.location}</p>}
+          {personal.website && <p className="text-xs opacity-90 break-all">{personal.website}</p>}
           {personal.linkedin && <p className="text-xs opacity-90 break-all">{personal.linkedin}</p>}
           {personal.github && <p className="text-xs opacity-90 break-all">{personal.github}</p>}
         </div>
@@ -79,6 +81,24 @@ export default function ModernTemplate({ data }: Props) {
           <section>
             <SectionTitle title="个人简介" color={color} />
             <p className="text-gray-700 leading-relaxed">{personal.summary}</p>
+          </section>
+        )}
+
+        {/* Job intent */}
+        {hasJobIntent && (
+          <section>
+            <SectionTitle title="求职意向" color={color} />
+            <div className="text-gray-700 grid grid-cols-2 gap-x-4 gap-y-1">
+              {personal.jobStatus && <p><span className="text-gray-500">当前状态：</span>{personal.jobStatus}</p>}
+              {personal.desiredPosition && <p><span className="text-gray-500">期望职位：</span>{personal.desiredPosition}</p>}
+              {personal.targetCity && <p><span className="text-gray-500">意向城市：</span>{personal.targetCity}</p>}
+              {(personal.salaryMin || personal.salaryMax) && (
+                <p>
+                  <span className="text-gray-500">期望薪资：</span>
+                  {[personal.salaryMin, personal.salaryMax].filter(Boolean).join(' - ')}
+                </p>
+              )}
+            </div>
           </section>
         )}
 

@@ -16,9 +16,11 @@ export function useAutoSave() {
         setSaving(true)
         await resumesApi.update(resumeId, { content: data })
         markSaved()
-      } catch (err) {
+      } catch (err: any) {
         setSaving(false)
         console.error('Auto-save failed:', err)
+        const message = err?.response?.data?.error || '自动保存失败，请稍后重试'
+        console.warn(message)
       }
     }, 1500)
 

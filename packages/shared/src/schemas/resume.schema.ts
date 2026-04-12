@@ -14,7 +14,7 @@ export const ResumMetaSchema = z.object({
 export const PersonalInfoSchema = z.object({
   name: z.string().max(100),
   title: z.string().max(150),
-  email: z.string().email().or(z.literal('')),
+  email: z.string().max(254),
   phone: z.string().max(30),
   location: z.string().max(100),
   linkedin: z.string().max(500).optional(),
