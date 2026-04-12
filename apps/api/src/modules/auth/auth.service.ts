@@ -22,7 +22,7 @@ export async function registerUser(email: string, password: string, name?: strin
       title: '我的简历',
       content: {
         meta: { templateId: 'classic', colorScheme: '#2563eb', fontSize: 'md', sectionOrder: ['personal', 'experience', 'education', 'skills', 'projects', 'certifications'] },
-        personal: { name: '', title: '', email: '', phone: '', location: '', summary: '' },
+        personal: { name: '', title: '', email: '', phone: '', location: '', avatarUrl: '', summary: '' },
         experience: [],
         education: [],
         skills: [],

@@ -26,19 +26,10 @@ function AvatarSection({ avatarUrl, onUpdate }: { avatarUrl?: string; onUpdate: 
   const handleFile = (file: File) => {
     const reader = new FileReader()
     reader.onload = (e) => {
-      const img = new Image()
-      img.onload = () => {
-        const canvas = document.createElement('canvas')
-        const size = Math.min(img.width, img.height)
-        canvas.width = 200
-        canvas.height = 200
-        const ctx = canvas.getContext('2d')!
-        const sx = (img.width - size) / 2
-        const sy = (img.height - size) / 2
-        ctx.drawImage(img, sx, sy, size, size, 0, 0, 200, 200)
-        onUpdate(canvas.toDataURL('image/jpeg', 0.85))
+      const result = e.target?.result
+      if (typeof result === 'string') {
+        onUpdate(result)
       }
-      img.src = e.target?.result as string
     }
     reader.readAsDataURL(file)
   }
@@ -47,11 +38,11 @@ function AvatarSection({ avatarUrl, onUpdate }: { avatarUrl?: string; onUpdate: 
     <div className="flex items-center gap-4">
       {/* Avatar preview */}
       <div
-        className="w-16 h-16 rounded-full bg-[#1a1d24] border border-[#3a3d4a] flex-shrink-0 overflow-hidden cursor-pointer hover:border-gray-500 transition-colors"
+        className="w-20 h-24 rounded-md bg-[#1a1d24] border border-[#3a3d4a] flex-shrink-0 overflow-hidden cursor-pointer hover:border-gray-500 transition-colors p-1"
         onClick={() => fileRef.current?.click()}
       >
         {avatarUrl ? (
-          <img src={avatarUrl} alt="头像" className="w-full h-full object-cover" />
+          <img src={avatarUrl} alt="头像" className="w-full h-full object-contain" />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
             <Camera size={20} className="text-gray-600" />

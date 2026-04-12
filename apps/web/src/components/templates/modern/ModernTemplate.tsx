@@ -32,6 +32,11 @@ export default function ModernTemplate({ data }: Props) {
       <aside className="w-[220px] flex-shrink-0 text-white py-7 px-5 space-y-5" style={{ backgroundColor: color }}>
         {/* Name */}
         <div>
+          {personal.avatarUrl && (
+            <div className="w-28 h-36 rounded-md overflow-hidden ring-1 ring-white/40 bg-white/10 mb-3 p-1">
+              <img src={personal.avatarUrl} alt="头像" className="w-full h-full object-contain" />
+            </div>
+          )}
           <h1 className="text-lg font-bold leading-tight">{personal.name || '你的姓名'}</h1>
           {personal.title && <p className="text-xs opacity-80 mt-1">{personal.title}</p>}
         </div>

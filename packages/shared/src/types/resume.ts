@@ -134,6 +134,7 @@ export const DEFAULT_RESUME_DATA: ResumeData = {
     email: '',
     phone: '',
     location: '',
+    avatarUrl: '',
     summary: '',
   },
   experience: [],

@@ -35,23 +35,33 @@ export default function ClassicTemplate({ data }: Props) {
     >
       {/* Header */}
       <header
-        className="px-8 py-6 text-white"
-        style={{ backgroundColor: color }}
+        className="relative px-10 h-44 bg-white border-t-[12px] border-solid overflow-hidden"
+        style={{ borderTopColor: color }}
       >
-        <h1 className="text-2xl font-bold tracking-wide">
-          {personal.name || '你的姓名'}
-        </h1>
-        {personal.title && (
-          <p className="text-base opacity-90 mt-1">{personal.title}</p>
-        )}
-        <div className="flex flex-wrap gap-x-5 gap-y-1 mt-3 text-xs opacity-80">
-          {personal.email && <span>{personal.email}</span>}
-          {personal.phone && <span>{personal.phone}</span>}
-          {personal.location && <span>{personal.location}</span>}
-          {personal.linkedin && <span>{personal.linkedin}</span>}
-          {personal.github && <span>{personal.github}</span>}
-          {personal.website && <span>{personal.website}</span>}
+        <div className="h-full flex items-center justify-center">
+          <div className="text-center text-gray-900 max-w-[520px] px-6">
+            <h1 className="text-2xl font-bold tracking-wide">
+              {personal.name || '你的姓名'}
+            </h1>
+            {personal.title && (
+              <p className="text-base mt-1">{personal.title}</p>
+            )}
+            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 mt-3 text-[13px] text-gray-800">
+              {personal.phone && <span>{personal.phone}</span>}
+              {personal.email && <span>{personal.email}</span>}
+              {personal.website && <span>博客: {personal.website}</span>}
+              {personal.location && <span>{personal.location}</span>}
+              {personal.desiredPosition && <span>{personal.desiredPosition}</span>}
+              {personal.salaryMax && <span>{personal.salaryMax}</span>}
+            </div>
+          </div>
         </div>
+
+        {personal.avatarUrl && (
+          <div className="absolute right-8 top-1/2 -translate-y-1/2 w-24 h-32 rounded-sm overflow-hidden bg-white ring-1 ring-gray-300 p-1">
+            <img src={personal.avatarUrl} alt="头像" className="w-full h-full object-contain" />
+          </div>
+        )}
       </header>
 
       <div className="px-8 py-5 space-y-4">

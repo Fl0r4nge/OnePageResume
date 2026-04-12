@@ -34,7 +34,7 @@ export async function createResume(userId: string, title: string = '新简历') 
       title,
       content: {
         meta: { templateId: 'classic', colorScheme: '#2563eb', fontSize: 'md', sectionOrder: ['personal', 'experience', 'education', 'skills', 'projects', 'certifications'] },
-        personal: { name: '', title: '', email: '', phone: '', location: '', summary: '' },
+        personal: { name: '', title: '', email: '', phone: '', location: '', summary: '', avatarUrl: '' },
         experience: [],
         education: [],
         skills: [],
