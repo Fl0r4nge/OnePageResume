@@ -48,8 +48,9 @@ RUN node -e "\
 # ============================================================
 FROM node:20-alpine AS runner
 
-# Install Chromium for Puppeteer PDF generation
+# Install Chromium and Chinese fonts for PDF generation
 RUN apk add --no-cache chromium nss freetype harfbuzz \
+    font-noto-cjk \
     && rm -rf /var/cache/apk/*
 
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
