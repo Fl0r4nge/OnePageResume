@@ -95,8 +95,9 @@ export default function EditorPage() {
   }
 
   const buildExportHtml = () => {
-    const printArea = document.getElementById('resume-print-area')
-    if (!printArea) {
+    const measureDiv = document.querySelector('.resume-pagination-measure')
+    const resumePage = measureDiv?.querySelector('.resume-page')
+    if (!resumePage) {
       throw new Error('未找到可导出的简历预览区域')
     }
 
@@ -109,37 +110,22 @@ export default function EditorPage() {
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     ${styles}
     <style>
       html, body { margin: 0; padding: 0; background: #fff; }
       @page { size: A4; margin: 0; }
-
-      /* Export-only pagination overrides */
       #resume-print-area {
         position: static !important;
         width: auto !important;
         height: auto !important;
       }
-      .resume-pagination { gap: 0 !important; }
-      .resume-pagination-measure { display: none !important; }
-      .resume-sheet {
+      .resume-page {
         width: 210mm !important;
-        height: 297mm !important;
-        box-shadow: none !important;
-        break-after: page;
-        page-break-after: always;
+        min-height: auto !important;
       }
-      .resume-sheet:last-child {
-        break-after: auto;
-        page-break-after: auto;
-      }
-      .resume-sheet-content { width: 210mm !important; }
     </style>
   </head>
-  <body>
-    <div id="resume-print-area">${printArea.innerHTML}</div>
-  </body>
+  <body><div id="resume-print-area">${resumePage.outerHTML}</div></body>
 </html>`
   }
 
