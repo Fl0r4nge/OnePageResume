@@ -44,7 +44,8 @@ export const resumesApi = {
   create: (data?: { title?: string }) => api.post('/resumes', data),
   update: (id: string, data: { title?: string; content?: unknown }) =>
     api.patch(`/resumes/${id}`, data),
-  exportPdf: (id: string) => api.get(`/resumes/${id}/export/pdf`, { responseType: 'blob' }),
+  exportPdf: (id: string, data: { html: string; fileName?: string }) =>
+    api.post(`/resumes/${id}/export/pdf`, data, { responseType: 'blob' }),
   delete: (id: string) => api.delete(`/resumes/${id}`),
   duplicate: (id: string) => api.post(`/resumes/${id}/duplicate`),
   share: (id: string) => api.post(`/resumes/${id}/share`),

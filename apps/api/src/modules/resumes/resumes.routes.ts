@@ -2,7 +2,7 @@ import { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import * as resumesService from './resumes.service'
 import { authenticate } from '../../shared/middleware/authenticate'
-import { generateResumePdf } from '../export/export.service'
+import { generateResumePdfFromHtml } from '../export/export.service'
 
 export async function resumesRoutes(fastify: FastifyInstance) {
   // All routes require authentication
@@ -58,16 +58,31 @@ export async function resumesRoutes(fastify: FastifyInstance) {
     return resumesService.toggleShareResume(request.params.id, userId)
   })
 
-  // GET /api/resumes/:id/export/pdf — export resume as PDF file download
-  fastify.get<{ Params: { id: string } }>('/:id/export/pdf', async (request, reply) => {
-    const { sub: userId } = request.user as { sub: string }
-    const { fileName, pdf } = await generateResumePdf(request.params.id, userId)
-    const encoded = encodeURIComponent(fileName)
-    reply.header('Content-Type', 'application/pdf')
-    reply.header('Content-Disposition', `attachment; filename*=UTF-8''${encoded}`)
-    reply.header('Cache-Control', 'no-store')
-    return reply.send(pdf)
-  })
+  // POST /api/resumes/:id/export/pdf — export resume as PDF file download
+  fastify.post<{ Params: { id: string } }>(
+    '/:id/export/pdf',
+    { bodyLimit: 6 * 1024 * 1024 },
+    async (request, reply) => {
+      const { sub: userId } = request.user as { sub: string }
+      const body = z.object({
+        html: z.string().min(1).max(6_000_000),
+        fileName: z.string().max(200).optional(),
+      }).parse(request.body)
+
+      const { fileName, pdf } = await generateResumePdfFromHtml(
+        request.params.id,
+        userId,
+        body.html,
+        body.fileName
+      )
+
+      const encoded = encodeURIComponent(fileName)
+      reply.header('Content-Type', 'application/pdf')
+      reply.header('Content-Disposition', `attachment; filename*=UTF-8''${encoded}`)
+      reply.header('Cache-Control', 'no-store')
+      return reply.send(pdf)
+    }
+  )
 
   // POST /api/resumes/:id/snapshots — save version snapshot
   fastify.post<{ Params: { id: string } }>('/:id/snapshots', async (request, reply) => {

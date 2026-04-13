@@ -41,6 +41,12 @@ function toErrorMessage(error: unknown) {
   return 'unknown error'
 }
 
+function ensurePdfFileName(name?: string, fallback?: string) {
+  const normalized = (name?.trim() || fallback?.trim() || 'resume')
+    .replace(/[\\/:*?"<>|]/g, '_')
+  return normalized.toLowerCase().endsWith('.pdf') ? normalized : `${normalized}.pdf`
+}
+
 function escapeHtml(value: string) {
   return value
     .replace(/&/g, '&amp;')
@@ -324,6 +330,54 @@ function renderResumeHtml(title: string, data: ResumeData) {
       </body>
     </html>
   `
+}
+
+export async function generateResumePdfFromHtml(
+  resumeId: string,
+  userId: string,
+  html: string,
+  fileName?: string
+) {
+  const resume = await resumesService.getResume(resumeId, userId)
+  const browser: Browser = await launchPdfBrowser()
+
+  try {
+    const page = await browser.newPage()
+    page.setDefaultNavigationTimeout(20_000)
+    page.setDefaultTimeout(20_000)
+
+    try {
+      await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 20_000 })
+    } catch (error) {
+      throw new AppError(`导出 HTML 渲染失败，请重试 (${toErrorMessage(error)})`, 500)
+    }
+
+    await page.emulateMediaType('print')
+
+    let pdf: Uint8Array
+    try {
+      pdf = await page.pdf({
+        format: 'A4',
+        printBackground: true,
+        margin: {
+          top: '0mm',
+          right: '0mm',
+          bottom: '0mm',
+          left: '0mm',
+        },
+        preferCSSPageSize: true,
+      })
+    } catch (error) {
+      throw new AppError(`PDF 生成失败，请重试 (${toErrorMessage(error)})`, 500)
+    }
+
+    return {
+      fileName: ensurePdfFileName(fileName, resume.title),
+      pdf,
+    }
+  } finally {
+    await browser.close().catch(() => undefined)
+  }
 }
 
 export async function generateResumePdf(resumeId: string, userId: string) {

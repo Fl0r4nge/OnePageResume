@@ -12,6 +12,7 @@ interface PaginatedPreviewProps {
 const MIN_CHUNK_PX = 120
 const PAGE_BOTTOM_GUARD_PX = 24
 const PAGE_TOP_PADDING_PX = 24
+const PAGE_MASK_SAFETY_PX = 2
 
 function getLineStartBreakpoints(root: HTMLElement, totalHeight: number): number[] {
   const rootRect = root.getBoundingClientRect()
@@ -90,7 +91,8 @@ function computePageStarts(root: HTMLElement, totalHeight: number): number[] {
     const blockCandidate = pickBestBreakpoint(cursor, minStart, maxStart, blockBreakpoints)
     const nextAfterLine = pickNextBreakpointAfter(maxStart, lineBreakpoints)
     const nextAfterBlock = pickNextBreakpointAfter(maxStart, blockBreakpoints)
-    const next = blockCandidate ?? lineCandidate ?? nextAfterBlock ?? nextAfterLine ?? maxStart
+    // Prefer text-line boundaries first to reduce glyph clipping at page bottoms.
+    const next = lineCandidate ?? blockCandidate ?? nextAfterLine ?? nextAfterBlock ?? maxStart
 
     if (next <= cursor) break
     cursor = next
@@ -144,7 +146,9 @@ export default function PaginatedPreview({ TemplateComponent, data, onPageCountC
         const topPad = pageIndex > 0 ? PAGE_TOP_PADDING_PX : 0
         const nextStart = pageStarts[pageIndex + 1] ?? totalHeight
         const logicalPageHeight = nextStart - startOffset
-        const maskHeight = A4_HEIGHT_PX - logicalPageHeight - topPad
+        const isLastPage = pageIndex === pageStarts.length - 1
+        const rawMaskHeight = A4_HEIGHT_PX - logicalPageHeight - topPad - PAGE_MASK_SAFETY_PX
+        const maskHeight = isLastPage ? 0 : Math.max(0, rawMaskHeight)
 
         return (
           <div key={pageIndex} className="resume-sheet" style={{ width: `${A4_WIDTH_PX}px`, height: `${A4_HEIGHT_PX}px` }}>
@@ -171,13 +175,13 @@ export default function PaginatedPreview({ TemplateComponent, data, onPageCountC
                 }}
               />
             )}
-            {maskHeight > 0 && (
+            {!isLastPage && maskHeight > 0 && (
               <div
                 aria-hidden="true"
                 style={{
                   position: 'absolute',
                   left: 0,
-                  top: logicalPageHeight + topPad,
+                  top: logicalPageHeight + topPad + PAGE_MASK_SAFETY_PX,
                   width: `${A4_WIDTH_PX}px`,
                   height: maskHeight,
                   backgroundColor: 'white',

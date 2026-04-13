@@ -45,6 +45,17 @@ async function buildApp() {
     if (error instanceof Error && error.name === 'ZodError') {
       return reply.status(400).send({ error: '请求数据格式有误', details: (error as any).errors })
     }
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      'statusCode' in error &&
+      typeof (error as any).statusCode === 'number' &&
+      'message' in error
+    ) {
+      const statusCode = (error as any).statusCode as number
+      const message = String((error as any).message || '请求失败')
+      return reply.status(statusCode).send({ error: message, message })
+    }
     app.log.error(error)
     return reply.status(500).send({ error: '服务器内部错误' })
   })

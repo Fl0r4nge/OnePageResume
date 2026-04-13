@@ -18,7 +18,7 @@ async function getExportErrorMessage(err: any) {
       const text = await data.text()
       try {
         const parsed = JSON.parse(text)
-        return parsed?.error || fallback
+        return parsed?.error || parsed?.message || fallback
       } catch {
         const plain = text.trim()
         return plain || fallback
@@ -29,7 +29,7 @@ async function getExportErrorMessage(err: any) {
   }
 
   if (typeof data === 'string') return data || fallback
-  return data?.error || fallback
+  return data?.error || data?.message || err?.message || fallback
 }
 
 export default function EditorPage() {
@@ -94,12 +94,65 @@ export default function EditorPage() {
     }
   }
 
+  const buildExportHtml = () => {
+    const printArea = document.getElementById('resume-print-area')
+    if (!printArea) {
+      throw new Error('未找到可导出的简历预览区域')
+    }
+
+    const styleNodes = Array.from(
+      document.head.querySelectorAll('style, link[rel="stylesheet"]')
+    )
+    const styles = styleNodes.map((node) => node.outerHTML).join('\n')
+
+    return `<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    ${styles}
+    <style>
+      html, body { margin: 0; padding: 0; background: #fff; }
+      @page { size: A4; margin: 0; }
+
+      /* Export-only pagination overrides */
+      #resume-print-area {
+        position: static !important;
+        width: auto !important;
+        height: auto !important;
+      }
+      .resume-pagination { gap: 0 !important; }
+      .resume-pagination-measure { display: none !important; }
+      .resume-sheet {
+        width: 210mm !important;
+        height: 297mm !important;
+        box-shadow: none !important;
+        break-after: page;
+        page-break-after: always;
+      }
+      .resume-sheet:last-child {
+        break-after: auto;
+        page-break-after: auto;
+      }
+      .resume-sheet-content { width: 210mm !important; }
+    </style>
+  </head>
+  <body>
+    <div id="resume-print-area">${printArea.innerHTML}</div>
+  </body>
+</html>`
+  }
+
   // PDF export via API file download
   const handleExport = async () => {
     if (!id || isExporting) return
     setIsExporting(true)
     try {
-      const res = await resumesApi.exportPdf(id)
+      const html = buildExportHtml()
+      const res = await resumesApi.exportPdf(id, {
+        html,
+        fileName: `${resumeTitle || 'resume'}.pdf`,
+      })
       const contentDisposition = res.headers['content-disposition'] as string | undefined
       const match = contentDisposition?.match(/filename\*=UTF-8''([^;]+)/i)
       const rawName = match?.[1] ? decodeURIComponent(match[1]) : `${resumeTitle || 'resume'}.pdf`
