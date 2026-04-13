@@ -29,7 +29,7 @@ OnePageResume 是一个开源的在线简历编辑器，支持多模板、实时
 
 ```bash
 # 1. 克隆项目
-git clone https://github.com/your-username/OnePageResume.git
+git clone https://github.com/Fl0r4nge/OnePageResume.git
 cd OnePageResume
 
 # 2. 一键启动

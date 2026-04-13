@@ -1,6 +1,7 @@
 services:
   app:
-    build: .
+    image: ghcr.io/fl0r4nge/one-page-resume:latest
+    # build: .  # 本地开发时取消注释此行，注释上面的 image
     container_name: one-page-resume-app
     restart: unless-stopped
     ports:
