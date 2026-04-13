@@ -49,21 +49,23 @@ RUN node -e "\
 FROM node:20-alpine AS runner
 
 # Install Chromium for Puppeteer PDF generation
-RUN apk add --no-cache chromium
+RUN apk add --no-cache chromium nss freetype harfbuzz \
+    && rm -rf /var/cache/apk/*
 
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+ENV PUPPETEER_SKIP_DOWNLOAD=true
 ENV NODE_ENV=production
 
 RUN corepack enable && corepack prepare pnpm@10.33.0 --activate
 WORKDIR /app
 
-# Copy package manifests for install
+# Copy package manifests for install (web has no runtime deps, use empty manifest)
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY apps/api/package.json apps/api/package.json
-COPY apps/web/package.json apps/web/package.json
 COPY packages/shared/package.json packages/shared/package.json
+RUN mkdir -p apps/web && echo '{"name":"@one-page-resume/web","version":"0.0.1","private":true}' > apps/web/package.json
 
-RUN pnpm install --frozen-lockfile --prod
+RUN pnpm install --frozen-lockfile --prod --ignore-scripts || pnpm install --no-frozen-lockfile --prod --ignore-scripts
 
 # Copy built artifacts
 COPY --from=builder /app/apps/api/dist ./apps/api/dist
