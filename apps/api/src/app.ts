@@ -1,10 +1,13 @@
 import 'dotenv/config'
+import path from 'path'
+import fs from 'fs'
 import Fastify from 'fastify'
 import cookie from '@fastify/cookie'
 import cors from '@fastify/cors'
 import jwt from '@fastify/jwt'
 import rateLimit from '@fastify/rate-limit'
 import sensible from '@fastify/sensible'
+import fastifyStatic from '@fastify/static'
 import { env } from './config/env'
 import { authRoutes } from './modules/auth/auth.routes'
 import { resumesRoutes } from './modules/resumes/resumes.routes'
@@ -67,6 +70,21 @@ async function buildApp() {
 
   // Health check
   app.get('/health', async () => ({ status: 'ok', timestamp: new Date().toISOString() }))
+
+  // Serve frontend static files in production
+  const webDist = path.resolve(__dirname, '../../web/dist')
+  if (env.NODE_ENV === 'production' && fs.existsSync(webDist)) {
+    await app.register(fastifyStatic, {
+      root: webDist,
+      prefix: '/',
+      wildcard: false,
+    })
+
+    // SPA fallback: serve index.html for non-API routes
+    app.setNotFoundHandler((_request, reply) => {
+      return reply.sendFile('index.html')
+    })
+  }
 
   return app
 }

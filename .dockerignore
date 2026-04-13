@@ -1,0 +1,12 @@
+node_modules
+.turbo
+dist
+.env
+.env.local
+*.log
+.DS_Store
+.git
+.gitignore
+.prettierrc
+.claude
+TodoList.md

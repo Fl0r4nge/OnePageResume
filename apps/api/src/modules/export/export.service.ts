@@ -12,7 +12,7 @@ function getExecutablePathCandidates() {
     '/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary',
     '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge',
     '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser',
-  ].filter((item): item is string => Boolean(item) && existsSync(item))
+  ].filter((item): item is string => typeof item === 'string' && existsSync(item))
 }
 
 async function launchPdfBrowser() {

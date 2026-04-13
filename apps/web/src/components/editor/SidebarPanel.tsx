@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { Briefcase, GraduationCap, Code2, FolderOpen, Award, User, Settings2, Plus, X, ChevronDown, Upload, Image as ImageIcon } from 'lucide-react'
+import { Briefcase, GraduationCap, Code2, FolderOpen, Award, User, Settings2, Plus, X, ChevronDown, Upload, Image as ImageIcon, type LucideIcon } from 'lucide-react'
 import { AnimatePresence } from 'framer-motion'
 import { useResumeStore } from '@/store/resumeStore'
 import SectionGroup from './SectionGroup'
@@ -271,7 +271,7 @@ function CertificationInlineForm({ itemId }: { itemId: string }) {
 
 // ── Section metadata ────────────────────────────────────────────────────
 
-const SECTION_META: Record<string, { label: string; icon: React.ElementType; addLabel: string }> = {
+const SECTION_META: Record<string, { label: string; icon: LucideIcon; addLabel: string }> = {
   experience:     { label: '工作经历', icon: Briefcase,      addLabel: '添加工作经历' },
   education:      { label: '教育经历', icon: GraduationCap,  addLabel: '添加教育经历' },
   skills:         { label: '专业技能', icon: Code2,           addLabel: '添加技能组' },

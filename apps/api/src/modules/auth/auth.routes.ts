@@ -19,18 +19,18 @@ const LoginBody = z.object({
 })
 
 function setTokenCookies(reply: any, accessToken: string, refreshToken: string) {
-  const isProduction = env.NODE_ENV === 'production'
+  const useSecure = env.FRONTEND_URL.startsWith('https://')
   reply.setCookie('access_token', accessToken, {
     httpOnly: true,
-    secure: isProduction,
-    sameSite: 'strict',
+    secure: useSecure,
+    sameSite: useSecure ? 'strict' : 'lax',
     maxAge: ACCESS_TOKEN_TTL,
     path: '/',
   })
   reply.setCookie('refresh_token', refreshToken, {
     httpOnly: true,
-    secure: isProduction,
-    sameSite: 'strict',
+    secure: useSecure,
+    sameSite: useSecure ? 'strict' : 'lax',
     maxAge: REFRESH_TOKEN_TTL,
     path: '/api/auth',
   })
