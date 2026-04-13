@@ -9,6 +9,29 @@ import TemplatePicker from '@/components/toolbar/TemplatePicker'
 import PaginatedPreview from '@/components/preview/PaginatedPreview'
 import { TEMPLATE_REGISTRY } from '@/components/templates/registry'
 
+async function getExportErrorMessage(err: any) {
+  const fallback = '导出 PDF 失败，请稍后重试'
+
+  const data = err?.response?.data
+  if (data instanceof Blob) {
+    try {
+      const text = await data.text()
+      try {
+        const parsed = JSON.parse(text)
+        return parsed?.error || fallback
+      } catch {
+        const plain = text.trim()
+        return plain || fallback
+      }
+    } catch {
+      return fallback
+    }
+  }
+
+  if (typeof data === 'string') return data || fallback
+  return data?.error || fallback
+}
+
 export default function EditorPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
@@ -21,6 +44,7 @@ export default function EditorPage() {
   const [isEditingTitle, setIsEditingTitle] = useState(false)
   const [isRenamingTitle, setIsRenamingTitle] = useState(false)
   const [pageCount, setPageCount] = useState(1)
+  const [isExporting, setIsExporting] = useState(false)
 
   useAutoSave()
 
@@ -70,14 +94,33 @@ export default function EditorPage() {
     }
   }
 
-  // PDF export via browser print
-  const handleExport = () => {
-    const printArea = document.getElementById('resume-print-area')
-    if (!printArea) return
-    const original = document.title
-    document.title = resumeTitle
-    window.print()
-    document.title = original
+  // PDF export via API file download
+  const handleExport = async () => {
+    if (!id || isExporting) return
+    setIsExporting(true)
+    try {
+      const res = await resumesApi.exportPdf(id)
+      const contentDisposition = res.headers['content-disposition'] as string | undefined
+      const match = contentDisposition?.match(/filename\*=UTF-8''([^;]+)/i)
+      const rawName = match?.[1] ? decodeURIComponent(match[1]) : `${resumeTitle || 'resume'}.pdf`
+      const fileName = rawName.endsWith('.pdf') ? rawName : `${rawName}.pdf`
+
+      const blob = res.data instanceof Blob
+        ? res.data
+        : new Blob([res.data], { type: 'application/pdf' })
+      const url = URL.createObjectURL(blob)
+      const anchor = document.createElement('a')
+      anchor.href = url
+      anchor.download = fileName
+      document.body.appendChild(anchor)
+      anchor.click()
+      anchor.remove()
+      URL.revokeObjectURL(url)
+    } catch (err: any) {
+      alert(await getExportErrorMessage(err))
+    } finally {
+      setIsExporting(false)
+    }
   }
 
   // AI compression
@@ -211,10 +254,11 @@ export default function EditorPage() {
           {/* Export PDF */}
           <button
             onClick={handleExport}
-            className="flex items-center gap-1.5 bg-blue-600 text-white text-sm px-4 py-1.5 rounded-lg hover:bg-blue-700 transition-colors"
+            disabled={isExporting}
+            className="flex items-center gap-1.5 bg-blue-600 text-white text-sm px-4 py-1.5 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-60"
           >
-            <Download size={15} />
-            导出 PDF
+            {isExporting ? <Loader2 size={15} className="animate-spin" /> : <Download size={15} />}
+            {isExporting ? '导出中...' : '导出 PDF'}
           </button>
         </div>
       </header>

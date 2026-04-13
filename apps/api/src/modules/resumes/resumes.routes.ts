@@ -2,6 +2,7 @@ import { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import * as resumesService from './resumes.service'
 import { authenticate } from '../../shared/middleware/authenticate'
+import { generateResumePdf } from '../export/export.service'
 
 export async function resumesRoutes(fastify: FastifyInstance) {
   // All routes require authentication
@@ -55,6 +56,17 @@ export async function resumesRoutes(fastify: FastifyInstance) {
   fastify.post<{ Params: { id: string } }>('/:id/share', async (request) => {
     const { sub: userId } = request.user as { sub: string }
     return resumesService.toggleShareResume(request.params.id, userId)
+  })
+
+  // GET /api/resumes/:id/export/pdf — export resume as PDF file download
+  fastify.get<{ Params: { id: string } }>('/:id/export/pdf', async (request, reply) => {
+    const { sub: userId } = request.user as { sub: string }
+    const { fileName, pdf } = await generateResumePdf(request.params.id, userId)
+    const encoded = encodeURIComponent(fileName)
+    reply.header('Content-Type', 'application/pdf')
+    reply.header('Content-Disposition', `attachment; filename*=UTF-8''${encoded}`)
+    reply.header('Cache-Control', 'no-store')
+    return reply.send(pdf)
   })
 
   // POST /api/resumes/:id/snapshots — save version snapshot
